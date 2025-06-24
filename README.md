@@ -9,9 +9,10 @@ It can be configured in `wificonfig.h`.
 Configuration parameters persist during power outages using ESP32's Preferences storage.
 
 ### Features
-- Periodic soil moisture checks (with configurable check interval)
-- Automatic watering based on YL-69 sensor data
-- Client requests handling
+- Periodic soil moisture checks
+- Automatic irrigation based on soil moisture
+- HTTP API
+- Configuration through API
 
 ### Endpoints
 This project exposes API that can be used for creating your own client.
