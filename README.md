@@ -1,21 +1,50 @@
-# automated-watering
-Небольшой проект по автоматическому поливу растений.
-# Общая информация
-ESP32 хостит сервер (конфигурация которого задана в wificonfig.h. Выполняет следующие операции:
-- Проверка влажности почвы через некоторое количество времени (измеряется в минутах)
-- Принятие решения о поливе растения на основании полученных с датчика YL-69 данных
-- Обработка клиентских запросов
+## Automated watering with ESP32
+A backend component of IoT project for automated plant irrigation.
 
-При выключении из сети конфигурация системы не сбрасывается за счет сохранения ее параметров в Preferences.
+There is also an Android client available, you can check it out [here](https://github.com/baddabudda/automated-watering-client/tree/master).
 
-Клиент (мобильное приложение) подключается к серверу и может общаться с ним следующим образом:
-- Запросить акутальные данные с датчиков для отображения в UI
-- Поменять конфигурацию системы
-- Переподключиться по другому адресу
-С кодом клиента можно ознакомиться [тут](https://github.com/baddabudda/iot)
-# Использованные компоненты
+### Description
+The ESP32 microcontroller hosts a web server.
+It can be configured in `wificonfig.h`.
+Configuration parameters persist during power outages using ESP32's Preferences storage.
+
+### Features
+- Periodic soil moisture checks (with configurable check interval)
+- Automatic watering based on YL-69 sensor data
+- Client requests handling
+
+### Endpoints
+This project exposes API that can be used for creating your own client.
+
+Base URL will look like
+> ```
+> http://<esp32-ip>/
+> ```
+
+Response format is `application/json`.
+
+Available endpoints:
+| Endpoint | Method | Description | Parameters |
+| -------- | ------ | ----------- | ---------- |
+| `/` | `GET` | Get system status (soil moisture, water level) | `None` |
+| `/water` | `GET` | Trigger manual irrigation | `None` |
+| `/config` | `GET` | Get currernt system configuration | `None` |
+| `/change` | `GET` | Change system configuration | `json { "waterMax": float, "soilMin": int, "soilMax": int, "moistThreshold": int, "checkInterval": int, "wateringDuration": int}` |
+| `/test` | `GET` | Check connection | `None` |
+
+### Configuration info
+Since system configuration can be configured via `/change` endpoint, this section provides a brief description of system parameters.
+- `waterMax`: describes water level when the tank is full (height in cm)
+- `soilMin`: describes the baseline for moisturized soil (`0 <= soilMin <= 4095`)
+- `soilMax`: describes the baseline for dry soil (`0 <= soilMax <= 4095`)
+- `moistThreshold`: describes irrigation trigger point; if the value received from the YL-69 is greater than threshold, perform irrigation (`0 <= moistThreshold <= 4095`)
+- `checkInterval`: describes polling frequency, i.e. how often system checks soil moisturization (time in minutes)
+- `wateringDuration`: describes how long the soil will be irrigated (time in seconds)
+
+### Components used
 - ESP32
-- Датчик влажности почвы YL-69
-- Ультразвуковой датчик HC-SR04
-- Насос
-- Реле для контроля включения/выключения насоса
+- YL-69 moisture sensor
+- HC-SR04 ultrasonic sensor
+- Water pump
+- LM2596S-ADJ voltage regulator
+- 24V relay module
